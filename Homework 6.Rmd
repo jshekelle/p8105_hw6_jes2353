@@ -1,0 +1,30 @@
+---
+title: "Homework 6"
+author: "Jeanette Shekelle"
+date: "11/23/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+### Problem 1
+
+
+#### Reading in the data:
+
+```{r}
+homicide_data = read_csv(file = "./data/homicide_data.csv")
+```
+
+
+Creating city, state variable
+
+```{r}
+homicide_data %>% 
+  mutate(city_state = paste(city, state, sep = ','))
+```
+
