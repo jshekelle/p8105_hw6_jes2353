@@ -27,9 +27,13 @@ Cleaning the data:
 homicide_data_clean = 
   homicide_data %>% 
   janitor::clean_names() %>% 
-  mutate(city_state = paste(city, state, sep = ',')) %>% 
-  filter(city_state != "Dallas, TX" | city_state != "Phoenix, AZ" | 
-         city_state != "Kansas City, MO" | city_state != "Tulsa, AL") 
+   mutate(city_state = paste(city, state, sep = ','),
+         solved = as.numeric(disposition == "Closed by arrest"), 
+         victim_race = ifelse(victim_race != "White", "Non-White", "White"), 
+         victim_race = fct_relevel(victim_race, "White", "non-White"),
+         victim_age = as.numeric(victim_age)) %>% 
+   filter(city_state != "Dallas, TX" | city_state != "Phoenix, AZ" | 
+         city_state != "Kansas City, MO" | city_state != "Tulsa, AL")
   
 ```
 
