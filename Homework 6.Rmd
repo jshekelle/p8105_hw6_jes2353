@@ -8,6 +8,7 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(rvest)
 ```
 
 
@@ -37,3 +38,22 @@ homicide_data_clean =
   
 ```
 
+
+
+Fitting logistic regression using glm:
+
+```{r}
+
+fit_logistic = 
+  homicide_data_clean %>% 
+  filter(city_state == "Baltimore, MD") %>% 
+  glm(solved ~ victim_age + victim_race + victim_sex, 
+      data = ., family = binomial()) fit_logistic %>% 
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate), 
+         lower_limit = exp(estimate - 1.96*std.error), 
+         upper_limit = exp(estimate + 1.96*std.error)) %>%
+  select(term, OR, lower_limit, upper_limit) %>% 
+  filter(term == "victim_race = Non-White") %>% 
+  knitr::kable(digits = 4)
+```
