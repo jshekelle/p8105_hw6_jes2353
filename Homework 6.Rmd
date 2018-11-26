@@ -1,7 +1,7 @@
 ---
 title: "Homework 6"
 author: "Jeanette Shekelle"
-date: "11/23/2018"
+date: "11/27/2018"
 output: github_document
 ---
 
@@ -21,10 +21,15 @@ homicide_data = read_csv(file = "./data/homicide_data.csv")
 ```
 
 
-Creating city, state variable
+Cleaning the data:
 
 ```{r}
-homicide_data %>% 
-  mutate(city_state = paste(city, state, sep = ','))
+homicide_data_clean = 
+  homicide_data %>% 
+  janitor::clean_names() %>% 
+  mutate(city_state = paste(city, state, sep = ',')) %>% 
+  filter(city_state != "Dallas, TX" | city_state != "Phoenix, AZ" | 
+         city_state != "Kansas City, MO" | city_state != "Tulsa, AL") 
+  
 ```
 
