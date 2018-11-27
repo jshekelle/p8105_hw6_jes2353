@@ -83,3 +83,16 @@ birthweight_data_clean =
          pnumsga = as.numeric(pnumsga))
 ```
 
+
+Making a model for birthweight: 
+
+I am choosing to focus on the exposure of mother's pre-pregnancy BMI and the outcome of birthweight. There is evidence that suggests that the higher the mother's pre-pregnancy BMI, the higher the baby's birthweight will be. (Source: https://www.ncbi.nlm.nih.gov/pubmed/25863988 )
+
+
+```{r}
+birthweight_fit = lm(bwt ~ ppbmi, data = birthweight_data_clean) %>% 
+  broom::tidy()
+   
+```
+
+
