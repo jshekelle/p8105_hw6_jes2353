@@ -90,9 +90,40 @@ I am choosing to focus on the exposure of mother's pre-pregnancy BMI and the out
 
 
 ```{r}
-birthweight_fit = lm(bwt ~ ppbmi, data = birthweight_data_clean) %>% 
-  broom::tidy()
+birthweight_fit = lm(bwt ~ ppbmi, data = birthweight_data_clean) 
+ 
    
 ```
 
+
+Plot of model residuals against fitted values:
+
+```{r}
+birthweight_data_clean %>% 
+  modelr::add_predictions(birthweight_fit) %>% 
+  modelr::add_residuals(birthweight_fit) %>% 
+  ggplot(aes(x = pred, y = resid)) +
+  geom_point()
+```
+
+This plot shows me that I have a bad model. It is very skewed and lots of uncontrolled confounding. 
+
+
+Comparing my model to two others:
+
+1) One using length at birth and gestational age as predictors (main effects only)
+
+
+```{r}
+birthweight_fit_1 = lm(bwt ~ blength + gaweeks, data = birthweight_data_clean) %>% 
+  broom::tidy() 
+```
+
+
+2) One using head circumference, length, sex, and all interactions (including the three-way interaction) between these
+
+```{r}
+birthweight_fit_2 = lm(bwt ~ bhead + blength + babysex, data = birthweight_data_clean) %>% 
+  broom::tidy()
+```
 
