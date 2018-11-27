@@ -1,36 +1,39 @@
----
-title: "Homework 6"
-author: "Jeanette Shekelle"
-date: "11/27/2018"
-output: github_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(modelr)
-```
-
+Homework 6
+================
+Jeanette Shekelle
+11/27/2018
 
 ### Introduction:
 
-The purpose of this document is to practice fitting linear models for P8105 Homework 6. 
-
+The purpose of this document is to practice fitting linear models for P8105 Homework 6.
 
 ### Problem 1
 
-
 #### Reading in the data:
 
-```{r}
+``` r
 homicide_data = read_csv(file = "./data/homicide_data.csv")
 ```
 
+    ## Parsed with column specification:
+    ## cols(
+    ##   uid = col_character(),
+    ##   reported_date = col_integer(),
+    ##   victim_last = col_character(),
+    ##   victim_first = col_character(),
+    ##   victim_race = col_character(),
+    ##   victim_age = col_character(),
+    ##   victim_sex = col_character(),
+    ##   city = col_character(),
+    ##   state = col_character(),
+    ##   lat = col_double(),
+    ##   lon = col_double(),
+    ##   disposition = col_character()
+    ## )
 
 Cleaning the data:
 
-
-```{r}
+``` r
 homicide_data_clean = 
   homicide_data %>% 
   janitor::clean_names() %>% 
@@ -43,11 +46,12 @@ homicide_data_clean =
          victim_race = fct_relevel(victim_race, "white"))
 ```
 
-
+    ## Warning in evalq(as.numeric(victim_age), <environment>): NAs introduced by
+    ## coercion
 
 Fitting logistic regression using glm:
 
-```{r}
+``` r
 fit_logistic = 
   homicide_data_clean%>% 
   filter(city_state == "Baltimore, MD") %>%
@@ -59,4 +63,3 @@ fit_logistic =
   select(OR, low_OR, high_OR, p.value) %>% 
   knitr::kable(digits = 3)
 ```
-
