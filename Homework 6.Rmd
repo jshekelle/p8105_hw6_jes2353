@@ -9,6 +9,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(modelr)
+library(purrr)
 ```
 
 
@@ -90,8 +91,8 @@ I am choosing to focus on the exposure of mother's pre-pregnancy BMI and the out
 
 
 ```{r}
-birthweight_fit = lm(bwt ~ ppbmi, data = birthweight_data_clean) 
- 
+birthweight_fit = lm(bwt ~ ppbmi, data = birthweight_data_clean) %>% 
+  broom::tidy()
    
 ```
 
@@ -106,7 +107,7 @@ birthweight_data_clean %>%
   geom_point()
 ```
 
-This plot shows me that I have a bad model. It is very skewed and lots of uncontrolled confounding. 
+This plot shows me that I chose a bad model. It is very skewed and has lots of uncontrolled confounding. 
 
 
 Comparing my model to two others:
@@ -123,7 +124,40 @@ birthweight_fit_1 = lm(bwt ~ blength + gaweeks, data = birthweight_data_clean) %
 2) One using head circumference, length, sex, and all interactions (including the three-way interaction) between these
 
 ```{r}
-birthweight_fit_2 = lm(bwt ~ bhead + blength + babysex, data = birthweight_data_clean) %>% 
+birthweight_fit_2 = lm(bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex + 
+                         blength*babysex + bhead*blength*babysex, data = birthweight_data_clean) %>% 
   broom::tidy()
 ```
 
+
+
+Making this comparison in terms of the cross-validated prediction error:
+
+
+```{r}
+cv_df = crossv_mc(birthweight_data_clean, 100)
+ 
+cv_df = 
+  cv_df %>% 
+  mutate(birthweight_fit = map(train, ~lm(bwt ~ mrace + blength + momage, data = .x)),
+         birthweight_fit_1 = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+         birthweight_fit_2 = map(train, ~lm(bwt ~ bhead + blength + babysex + bhead * blength + bhead * babysex + blength * babysex + bhead * blength * babysex, data = .x))) %>% 
+  mutate(rmse_birthweight_fit = map2_dbl(birthweight_fit, test, ~rmse(model = .x, data = .y)),
+         rmse_birthweight_fit_1 = map2_dbl(birthweight_fit_1, test, ~rmse(model = .x, data = .y)),
+         rmse_birthweight_fit_2 = map2_dbl(birthweight_fit_2, test, ~rmse(model = .x, data = .y)))
+```
+
+
+Plotting:
+
+```{r}
+cv_df %>% 
+  select(starts_with("rmse")) %>% 
+  gather(key = model, value = rmse) %>% 
+  mutate(model = str_replace(model, "rmse_", ""),
+         model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + 
+  geom_violin() 
+```
+
+Here I can see the Root Mean Square Errors for the 3 models. My model is very similar to the middle model. Both my model and the middle model have an RMSE of about 330. The right model has a RMSE of ~285. This is much lower than the first two models, so it is the best to use. This makes sense since it had the most terms added to the model statement, so it was accounting for many other variables. 
